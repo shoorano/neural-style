@@ -1,14 +1,15 @@
 # Copyright (c) 2015-2019 Anish Athalye. Released under GPLv3.
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 import numpy as np
 import scipy.io
 
 # work-around for more recent versions of tensorflow
 # https://github.com/tensorflow/tensorflow/issues/24496
-config = tf.ConfigProto()
+config = tf.compat.v1.ConfigProto()
 config.gpu_options.allow_growth = True
-sess = tf.Session(config=config)
+sess = tf.compat.v1.Session(config=config)
 
 VGG19_LAYERS = (
     'conv1_1', 'relu1_1', 'conv1_2', 'relu1_2', 'pool1',

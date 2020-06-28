@@ -5,7 +5,9 @@ import math
 import re
 from argparse import ArgumentParser
 from collections import OrderedDict
-
+import imageio
+import numpy
+from skimage.transform import resize
 from PIL import Image
 import numpy as np
 import scipy.misc
@@ -170,14 +172,15 @@ def main():
     if width is not None:
         new_shape = (int(math.floor(float(content_image.shape[0]) /
                 content_image.shape[1] * width)), width)
-        content_image = scipy.misc.imresize(content_image, new_shape)
+
+        content_image = numpy.array(Image.fromarray(content_image).resize(new_shape))
     target_shape = content_image.shape
     for i in range(len(style_images)):
         style_scale = STYLE_SCALE
         if options.style_scales is not None:
             style_scale = options.style_scales[i]
-        style_images[i] = scipy.misc.imresize(style_images[i], style_scale *
-                target_shape[1] / style_images[i].shape[1])
+            style_images[i] = numpy.array(Image.fromarray(style_images[i]).resize(style_scale *
+                target_shape[1] / style_images[i].shape[1]))
 
     style_blend_weights = options.style_blend_weights
     if style_blend_weights is None:
@@ -190,7 +193,7 @@ def main():
 
     initial = options.initial
     if initial is not None:
-        initial = scipy.misc.imresize(imread(initial), content_image.shape[:2])
+        initial = numpy.array(Image.fromarray(imread(initial)).resize(content_image.shape[:2]))
         # Initial guess is specified, but not noiseblend - no noise should be blended
         if options.initial_noiseblend is None:
             options.initial_noiseblend = 0.0
@@ -271,7 +274,7 @@ def main():
 
 
 def imread(path):
-    img = scipy.misc.imread(path).astype(np.float)
+    img = imageio.imread(path).astype(np.float)
     if len(img.shape) == 2:
         # grayscale
         img = np.dstack((img,img,img))
